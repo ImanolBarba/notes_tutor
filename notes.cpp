@@ -217,8 +217,10 @@ int main(int argc, char** argv) {
 
         // We're only interested on Channel 1 Note On, which is 3 bytes and status byte is 144
         if(num_bytes == 3) {
-          if(message[0] == 144) {
-            // Byte 2 is the key pressed, byte 3 is the note velocity which we don't care about
+          if(message[0] == 144 && message[2] != 0) {
+            // Byte 2 is the key pressed, byte 3 is the velocity, we only
+            // check this to see if it's 0, as some midi instruments send that
+            // instead of the dedicated note off message
             read_note = message[1];
           }
         }
