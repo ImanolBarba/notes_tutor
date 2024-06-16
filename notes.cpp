@@ -1,3 +1,4 @@
+
 /***************************************************************************
  *   notes.cpp  --  This file is part of notes_tutor.                      *
  *                                                                         *
@@ -35,6 +36,8 @@
 #define DIFFICULTY_EASY 1
 #define DIFFICULTY_MED 2
 #define DIFFICULTY_HARD 3
+
+#define CHANNEL_1_NOTE_ON 0x90
 
 // Initialise PRNG
 std::random_device seed;
@@ -91,6 +94,7 @@ unsigned int get_random_note(unsigned int difficulty) {
 DEFINE_string(difficulty, "easy", "Difficulty level. 'easy' is only 4th octave, no black keys. 'med' is no black keys. 'hard' is any key.");
 DEFINE_bool(forward, false, "Enable forwarding MIDI inputs to another MIDI device. The specific device is selected interactively.");
 DEFINE_string(notation, "english", "Musical note notation, either 'english' or 'solfege'.");
+DEFINE_uint64(channel, 1, "MIDI input channel number.");
 
 int main(int argc, char** argv) {
   gflags::SetVersionString("1.0.0");
@@ -217,7 +221,7 @@ int main(int argc, char** argv) {
 
         // We're only interested on Channel 1 Note On, which is 3 bytes and status byte is 144
         if(num_bytes == 3) {
-          if(message[0] == 144 && message[2] != 0) {
+          if(message[0] == (CHANNEL_1_NOTE_ON + (FLAGS_channel - 1)) && message[2] != 0) {
             // Byte 2 is the key pressed, byte 3 is the velocity, we only
             // check this to see if it's 0, as some midi instruments send that
             // instead of the dedicated note off message
